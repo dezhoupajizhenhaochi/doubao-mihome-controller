@@ -20,18 +20,22 @@
 |---|---|---|
 | `skill/SKILL.md` | 豆包工作技能定义（YAML frontmatter） | 创建豆包技能时，上传 `skill/` 整个目录 |
 | `skill/control.py` | 设备控制脚本（别名直连/归一化/TTS） | 豆包技能运行时执行；部署时复制到技能目录 |
-| `scripts/install.sh` | 一键安装 HA + 依赖 + onboarding + 开机自启 | 新机器部署第一步 |
-| `docs/速通手册-避坑版.md` | 完整配置手册 + 10 条坑清单 | 遇到 OAuth/令牌/集成加载问题时查 |
+| `scripts/install.sh` | 一键安装 HA + 依赖 + onboarding + 开机自启（onboarding 失败仅 warn 不中止） | 新机器部署第一步 |
+| `scripts/start.sh` | 健壮启动脚本：venv 解释器自愈 + 防自杀启动 + 就绪轮询；crontab 自启亦调用它 | 日常启动 / HA 起不来时优先用它 |
+| `docs/速通手册-避坑版.md` | 完整配置手册 + 14 条坑清单 | 遇到 OAuth/令牌/集成加载/启动失败时查 |
 
 ## 执行序列（新机器完整部署）
 
 ```bash
 # 1. 安装（HA + 小米集成 + 自启；onboarding 用 API 自动完成）
 bash scripts/install.sh
+#    - 管理员密码由脚本随机生成，落盘 ~/hass/.admin_password（权限 600），登录 HA 用它
+#    - 开机自启 crontab 调用 ~/hass/start.sh（自带 venv 解释器自愈，见坑#11）
 
 # 2. GUI 两步（唯一必须人工/浏览器操作的部分）：
 #    A. 集成页 → Xiaomi Home → 小米 OAuth 授权（可能需短信验证码）
-#       坑：授权回调跳 homeassistant.local 打不开 → URL 换成 127.0.0.1
+#       坑：基础配置页把「认证跳转地址」设为 http://127.0.0.1:8123，
+#           避免回调跳 homeassistant.local 打不开（坑#5/#14）
 #    B. 用户资料 → 安全 → 长期访问令牌 → 保存到 ~/hass/HA_TOKEN.txt
 #       坑：令牌只显示一次，立即复制；弹窗输入框在 shadow DOM，需用
 #           bu.snapshot 找 input ref + bu.type 输入、bu.text 读值
@@ -50,6 +54,8 @@ python3 control.py on "床头灯" && sleep 2 && python3 control.py off "床头�
 
 | 操作 | 命令 |
 |---|---|
+| 启动 HA（含解释器自愈） | `bash ~/hass/start.sh` |
+| 停止 HA | `pkill -9 -f '[v]env/bin/hass'` |
 | 查看全部设备 | `python3 control.py list` |
 | 查询设备状态 | `python3 control.py states "加湿器"` |
 | 开关设备 | `python3 control.py on/off "床头灯"` |

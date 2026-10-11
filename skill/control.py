@@ -42,6 +42,17 @@ ALIASES = {
     "卧室音箱": "media_player.xiaomi_cn_634510573_l05b",
     "小爱音箱": "media_player.xiaomi_cn_980937485_oh2p",
     "音箱": "media_player.xiaomi_cn_980937485_oh2p",
+    "客厅电视": "media_player.xiaomi_cn_mitv_0f607264fc6318a92b9e13c65db7cd3c_b5f5e6a88c0542abaf8459edf47e336b_v1",
+    "小米电视": "media_player.xiaomi_cn_mitv_0f607264fc6318a92b9e13c65db7cd3c_b5f5e6a88c0542abaf8459edf47e336b_v1",
+    "电视": "media_player.xiaomi_cn_mitv_0f607264fc6318a92b9e13c65db7cd3c_b5f5e6a88c0542abaf8459edf47e336b_v1",
+    "风扇": "fan.dmaker_cn_241294893_p5_s_2_fan",
+    "电暖器": "climate.xiaomi_cn_827525171_ma9",
+    "德州电暖器": "climate.xiaomi_cn_827525171_ma9",
+    "踢脚线电暖器": "climate.xiaomi_cn_827525171_ma9",
+    "油烟机灯": "light.xiaomi_cn_753953142_ymv5_s_4_light",
+    "吸油烟机灯": "light.xiaomi_cn_753953142_ymv5_s_4_light",
+    "王集客厅": "switch.chuangmi_cn_1063579718_046d02_on_p_2_1",
+    "摄像头": "switch.chuangmi_cn_1063579718_046d02_on_p_2_1",
 }
 
 TOKEN_FALLBACKS = (
