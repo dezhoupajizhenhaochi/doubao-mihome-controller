@@ -1,106 +1,108 @@
-# 豆包工作 × 米家设备控制器（mihome-controller）
+# 🏠 豆包工作 × 米家设备控制器
 
-让 **豆包工作（AI 助手）直接控制家里的米家设备**：说一句"打开加湿器""客厅空调调到 26 度""让音箱说：该睡觉了"，设备真实执行。
+> **一句话让 AI 控制你全家的小米设备** —— 说"打开加湿器"，灯亮、空调制冷、音箱开口说话，真实设备 5 秒内执行。
 
-面向 **豆包工作（云电脑 / 本机）+ 米家智能爱好者**，全程本机闭环，无需 Docker、无需 sudo，云电脑（Linux）可直接部署。
+让 **豆包工作（AI 助手）** 直接接管家里的米家设备：开灯、调空调、开关加湿器、让小米音箱说话。**面向米家智能爱好者和豆包工作（云电脑/本机）用户**，全程本机闭环，无 Docker、无 sudo，云电脑（Linux）直接部署，**15–25 分钟跑通**。
 
-## 架构
+> 🤖 **给 AI Agent 的话**：本仓库是"豆包工作 → Home Assistant → 米家设备"的完整可部署方案。部署与使用请先读 **[AGENTS.md](AGENTS.md)**（执行序列、文件职责、验证清单一目了然），豆包工作扔进去就能用。
 
-```
-豆包工作（自定义技能 mihome-controller）
-        │  自然语言 → 解析为命令
-        ▼
-control.py（本机执行，别名直连）
-        │  Home Assistant REST API（Bearer Token）
-        ▼
-Home Assistant（本机 127.0.0.1:8123）
-        │  Xiaomi Home 官方集成（OAuth 云同步）
-        ▼
-小米云 ⇄ 家里的米家设备（灯 / 空调 / 加湿器 / 音箱 / 电视…）
-```
+---
 
-## 特性
+## ✨ 这能帮你做什么
 
-| 能力 | 说明 |
+| 你说 | 真实效果 |
 |---|---|
-| ⚡ 极速响应 | 别名直连实体 API，单次命令 **0.1s** 内返回 |
-| 🗣️ 中文自然语言 | "打开加湿器""客厅的空调""卧室的灯" 均可命中（停用词归一化） |
-| 🔊 音箱 TTS | 让小米音箱 Pro / 小爱音箱 **开口说话**（文本指令） |
-| 🏠 覆盖主流品类 | 灯 / 空调（制冷制热+温度）/ 加湿器 / 热水器 / 电视 / 鱼缸 |
-| 🔄 开机自启 | crontab `@reboot` 自动拉起，重启无忧 |
-| 🔒 本机闭环 | 控制请求不出本机，只有设备状态同步走米家官方云 |
-| 📦 零特权依赖 | 无 sudo / 无 Docker / 无 docker，云电脑可直接跑 |
+| "帮我打开加湿器" | 米家无雾加湿器3 开机，湿度回传 |
+| "客厅空调调到 26 度" | 客厅空调制冷 26°C |
+| "床头灯调暗一点" | 床头灯亮度 40% |
+| "让音箱说：该睡觉了" | 小米音箱 Pro **开口说话** |
+| "查一下家里设备状态" | 全部 489 个实体状态一览 |
+| "关掉所有灯" | 灯光/空调/加湿器一键关闭 |
 
-## 快速开始（约 15–25 分钟）
+## 🎯 为什么值得装
 
-1. 安装 Home Assistant 到 `~/hass`：`bash scripts/install.sh`（含依赖、onboarding、自启）
-2. 浏览器打开 `http://127.0.0.1:8123`，添加集成 → 搜索 **Xiaomi Home**（官方 OAuth 版）→ 小米账号授权（需短信验证码）
-3. 创建长期访问令牌（用户资料 → 安全），保存到 `~/hass/HA_TOKEN.txt`
-4. 把 `skill/control.py` 复制到豆包工作技能目录，按 `python3 control.py list` 输出的实体 ID 更新别名表
-5. 在豆包工作聊天里喊：**"帮我打开加湿器"**
+**痛点**：小米音箱不够聪明？米家 App 一个个点太累？AI 只能聊天下不了手？
 
-> 详细步骤与全部已知坑点见 [docs/速通手册-避坑版.md](docs/速通手册-避坑版.md)
+| 对比 | 米家 App | 宏键盘+米家 | **本方案** |
+|---|---|---|---|
+| 自然语言控制 | ❌ | 部分 | ✅ 任意说法（"客厅的空调"也能懂） |
+| AI 理解上下文 | ❌ | ❌ | ✅ 豆包工作大模型理解 |
+| 设备覆盖 | ✅ | 少量 | ✅ 灯/空调/加湿器/热水器/电视/鱼缸/音箱 |
+| 让音箱说话 | ❌ | ❌ | ✅ TTS 文本指令 |
+| 响应速度 | 秒级 | 秒级 | ⚡ **0.1s**（别名直连） |
+| 部署成本 | — | 需硬件 | **15–25 分钟**（无 Docker/无 sudo） |
 
-## 目录结构
+**核心价值**：AI 从"能聊天"升级为"能动手"，一套配置，全家设备都在一句话的射程内。
+
+## 🚀 快速开始（5 步）
+
+```bash
+# 1. 一键安装 Home Assistant + 依赖 + 开机自启（约 10 分钟）
+bash scripts/install.sh
+
+# 2. 浏览器打开 http://127.0.0.1:8123
+#    设置 → 集成 → 搜索 Xiaomi → 「Xiaomi Home」→ 小米账号授权（需短信验证码）
+
+# 3. 创建长期令牌（用户资料 → 安全），保存到 ~/hass/HA_TOKEN.txt
+
+# 4. 部署技能：把 skill/ 目录交给豆包工作（创建自定义技能 mihome-controller）
+#    首次用 python3 control.py list 查看自己的设备实体 ID
+
+# 5. 对豆包工作说："帮我打开加湿器" 🎉
+```
+
+> 详细步骤 + **10 条历史坑**（OAuth 回调、shadow DOM 令牌、pkill 自杀等）见 **[docs/速通手册-避坑版.md](docs/速通手册-避坑版.md)**，按图索骥不踩坑。
+
+## 🛠️ 能力一览
+
+```bash
+python3 control.py list                                  # 全部设备状态
+python3 control.py states "加湿器"                        # 查询设备
+python3 control.py on/off "床头灯"                        # 开关
+python3 control.py climate "客厅空调" cool 26             # 空调制冷+温度
+python3 control.py light "床头灯" 60                      # 亮度（兼容 on/off）
+python3 control.py humidifier "加湿器" on                 # 加湿器
+python3 control.py speaker "音箱" "今天天气不错"           # 让音箱说话！
+```
+
+- **中文自然语言**：停用词归一化，"客厅的空调""卧室的灯"都能命中
+- **极速**：别名直连实体 API，命令 0.1s 内返回
+- **开机自启**：重启无忧（crontab @reboot）
+- **本机闭环**：控制请求不出本机，仅设备状态同步走米家官方云
+
+## 📁 仓库结构
 
 ```
 doubao-mihome-controller/
-├── README.md                 # 本文件
-├── LICENSE                   # MIT
-├── .gitignore                # 敏感文件过滤（HA_TOKEN 等）
+├── AGENTS.md              # 🤖 给 AI Agent 的执行手册（豆包工作先读这个）
+├── README.md              # 本文件
+├── LICENSE                # MIT
 ├── docs/
-│   └── 速通手册-避坑版.md     # 完整配置手册 + 10 条坑清单
+│   └── 速通手册-避坑版.md  # 完整手册 + 10 条坑清单
 ├── skill/
-│   ├── SKILL.md              # 豆包工作技能定义（frontmatter + 命令用法）
-│   └── control.py            # 设备控制脚本（别名直连 / 归一化 / 音箱 TTS）
+│   ├── SKILL.md           # 豆包工作技能定义（frontmatter 即插即用）
+│   └── control.py         # 设备控制脚本
 └── scripts/
-    └── install.sh            # 一键安装：HA + 依赖 + onboarding + 开机自启
+    └── install.sh         # 一键安装（HA+依赖+onboarding+自启）
 ```
 
-## 命令速览
+## 🔒 安全须知
 
-```bash
-# 查看全部设备与状态
-python3 control.py list
-python3 control.py states "加湿器"
+- `HA_TOKEN` 是设备控制钥匙，**严禁提交到仓库或云同步目录**，存 `~/hass/HA_TOKEN.txt` 即可（`.gitignore` 已过滤）
+- 令牌泄露立即作废：HA 用户资料 → 安全 → 删除令牌
+- 仓库中实体 ID 为作者家庭示例，请用 `control.py list` 查看自己的
 
-# 开关
-python3 control.py on "床头灯"
-python3 control.py off "床头灯"
+## 📦 兼容性
 
-# 空调：制冷 / 制热 / 送风 / 关闭 + 温度
-python3 control.py climate "客厅空调" cool 26
-python3 control.py climate "客厅空调" off
+| 环境 | 支持 |
+|---|---|
+| 豆包工作云电脑（Linux，无 sudo/docker） | ✅ 主战场 |
+| macOS 本机 | ✅ |
+| Home Assistant | 2026.2+ |
+| 米家账号 | 中国大陆区（其他地区调整 OAuth 配置即可） |
 
-# 灯光亮度（0-100，兼容 on/off）
-python3 control.py light "床头灯" 60
+## 💡 贡献
 
-# 音箱：播放 / 停止 / 让音箱说话
-python3 control.py speaker "音箱" play
-python3 control.py speaker "音箱" "今天天气不错，记得多喝水"
-```
+欢迎 PR：新设备别名、新命令（电视音量/窗帘/扫地机）、Docker 版、Windows 支持……
 
-## 安全提示（重要）
-
-- `HA_TOKEN`（长期访问令牌）是家里设备的控制钥匙，**有效期内=可控制您所有设备**。
-  - 已加入 `.gitignore`，**不要提交到仓库**，也不要放进会被云同步的技能目录。
-  - 建议保存到 `~/hass/HA_TOKEN.txt`（`control.py` 自动读取，也支持环境变量 `HA_TOKEN`）。
-- 令牌泄露时：HA 用户资料 → 安全 → 删除该令牌即可作废。
-- 本仓库 `control.py` 中的别名实体 ID 为作者家庭示例，请用 `python3 control.py list` 查看您自己的实体后替换。
-
-## 兼容性
-
-- **云电脑（Linux，无 sudo/docker）**：✅ 本方案主战场（uv 预编译 Python）
-- **macOS**：✅ 同样适用
-- **HA 版本**：2026.2+（REST API 稳定，长期兼容）
-- **米家账号**：中国大陆区（其他区域请调整 OAuth 地区配置）
-
-## License
-
-[MIT](LICENSE)
-
-## 贡献
-
-欢迎提 Issue / PR：新设备别名、新命令（如电视音量、窗帘）、Windows 支持、Docker 版等。
-
-**如果你觉得有用，点个 ⭐ 让更多米家玩家看到！**
+**觉得有用？点个 ⭐ 让更多米家玩家看到，一起把 AI 请进家里。**
