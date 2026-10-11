@@ -1,0 +1,18 @@
+# ===== 敏感文件：严禁提交（控制钥匙与授权产物） =====
+# HA 长期访问令牌（可控制家里所有设备）
+HA_TOKEN.txt
+*.token
+
+# Home Assistant 运行数据（含 OAuth 授权产物、账号信息）
+hass/
+.config/
+
+# 日志与临时文件
+*.log
+*.pid
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
